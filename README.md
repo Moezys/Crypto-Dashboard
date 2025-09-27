@@ -2,8 +2,6 @@
 
 A modern, responsive cryptocurrency price tracking dashboard built with Next.js 14, TypeScript, and Tailwind CSS. Track real-time crypto prices, manage your watchlist, and analyze market trends with interactive charts.
 
-![Crypto Dashboard Screenshot](https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=400&fit=crop&crop=entropy&auto=format&q=80)
-
 ## ✨ Features
 
 - **Live Price Updates**: Cryptocurrency prices updated hourly to respect API rate limits
@@ -57,7 +55,7 @@ A modern, responsive cryptocurrency price tracking dashboard built with Next.js 
 
 ## 🌐 Live Demo
 
-🔗 **[View Live Demo](https://crypto-dashboard-moezys.vercel.app)** *(Will be available after deployment)*
+🔗 **[View Live Demo](https://crypto-dashboard-ten-coral.vercel.app)**
 
 ## 📦 Deploy Your Own
 
