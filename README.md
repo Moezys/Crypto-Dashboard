@@ -57,10 +57,6 @@ A modern, responsive cryptocurrency price tracking dashboard built with Next.js 
 
 🔗 **[View Live Demo](https://crypto-dashboard-ten-coral.vercel.app)**
 
-## 📦 Deploy Your Own
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Moezys/Crypto-Dashboard)
-
 ## 📁 Project Structure
 
 ```
@@ -190,8 +186,8 @@ This project uses the [CoinGecko API](https://www.coingecko.com/en/api) for cryp
 This project was built with the assistance of AI in several key ways:
 
 ### 1. **Architecture Planning & Code Generation**
-- **Input**: "Create a Next.js crypto dashboard with TypeScript, Tailwind, and real-time price updates"
-- **Output**: Complete project structure, component architecture, and initial codebase
+- **Input**: "Create a Next.js crypto dashboard initial codebase with TypeScript, Tailwind, and real-time price updates"
+- **Output**: Project structure, component architecture, and initial codebase
 - **Benefit**: Rapid prototyping and consistent code patterns
 
 ### 2. **API Integration & Type Safety**
@@ -210,7 +206,7 @@ AI helped accelerate development while maintaining best practices and code quali
 
 Here are three resume-worthy bullet points for this project:
 
-• **Built a real-time cryptocurrency dashboard** using Next.js 14, TypeScript, and Tailwind CSS, featuring live price updates, interactive charts, and responsive design serving 1000+ daily users
+• **Built a real-time cryptocurrency dashboard** using Next.js 14, TypeScript, and Tailwind CSS, featuring live price updates, interactive charts, and responsive design
 
 • **Implemented full-stack data pipeline** with CoinGecko API integration, client-side polling, localStorage persistence, and comprehensive error handling, reducing data loading times by 40%
 
