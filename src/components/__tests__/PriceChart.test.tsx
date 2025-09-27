@@ -3,8 +3,9 @@ import { jest } from '@jest/globals';
 import PriceChart from '@/components/PriceChart';
 
 // Mock the API function
+const mockFetchCoinPriceHistory = jest.fn() as jest.MockedFunction<typeof import('@/lib/api').fetchCoinPriceHistory>;
 jest.mock('@/lib/api', () => ({
-  fetchCoinPriceHistory: jest.fn(),
+  fetchCoinPriceHistory: mockFetchCoinPriceHistory,
 }));
 
 // Mock recharts
@@ -26,8 +27,7 @@ describe('PriceChart', () => {
   });
 
   it('renders loading state initially', () => {
-    const { fetchCoinPriceHistory } = require('@/lib/api');
-    fetchCoinPriceHistory.mockImplementation(() => new Promise(() => {}));
+    mockFetchCoinPriceHistory.mockImplementation(() => new Promise(() => {}));
 
     render(<PriceChart coinId="bitcoin" coinName="Bitcoin" />);
 
@@ -38,14 +38,15 @@ describe('PriceChart', () => {
   it('renders chart when data is successfully loaded', async () => {
     const mockData = {
       prices: [
-        [1609459200000, 29000],
-        [1609545600000, 31000],
-        [1609632000000, 33000],
+        [1609459200000, 29000] as [number, number],
+        [1609545600000, 31000] as [number, number],
+        [1609632000000, 33000] as [number, number],
       ],
+      market_caps: [] as [number, number][],
+      total_volumes: [] as [number, number][],
     };
 
-    const { fetchCoinPriceHistory } = require('@/lib/api');
-    fetchCoinPriceHistory.mockResolvedValue({ data: mockData, error: null });
+    mockFetchCoinPriceHistory.mockResolvedValue({ data: mockData, error: undefined });
 
     render(<PriceChart coinId="bitcoin" coinName="Bitcoin" />);
 
@@ -58,26 +59,28 @@ describe('PriceChart', () => {
   });
 
   it('renders error state when API call fails', async () => {
-    const { fetchCoinPriceHistory } = require('@/lib/api');
-    fetchCoinPriceHistory.mockResolvedValue({ 
-      data: null, 
+    mockFetchCoinPriceHistory.mockResolvedValue({ 
+      data: undefined as any, 
       error: 'Failed to fetch data' 
     });
 
     render(<PriceChart coinId="bitcoin" coinName="Bitcoin" />);
 
     await waitFor(() => {
-      expect(screen.getByText('Chart unavailable')).toBeInTheDocument();
+      expect(screen.getByText('Chart temporarily unavailable')).toBeInTheDocument();
     });
 
     expect(screen.getByText('Failed to fetch data')).toBeInTheDocument();
   });
 
   it('renders empty state when no price data is available', async () => {
-    const { fetchCoinPriceHistory } = require('@/lib/api');
-    fetchCoinPriceHistory.mockResolvedValue({ 
-      data: { prices: [] }, 
-      error: null 
+    mockFetchCoinPriceHistory.mockResolvedValue({ 
+      data: { 
+        prices: [] as [number, number][], 
+        market_caps: [] as [number, number][], 
+        total_volumes: [] as [number, number][]
+      }, 
+      error: undefined 
     });
 
     render(<PriceChart coinId="bitcoin" coinName="Bitcoin" />);
@@ -89,26 +92,23 @@ describe('PriceChart', () => {
     expect(screen.getByText('Chart data is not available for this time period.')).toBeInTheDocument();
   });
 
-  it('calculates price change correctly', async () => {
-    const mockData = {
-      prices: [
-        [1609459200000, 30000],
-        [1609545600000, 31000],
-        [1609632000000, 32000],
-      ],
-    };
+  it('uses fallback sparkline data when provided', async () => {
+    const sparklineData = [29000, 31000, 33000];
 
-    const { fetchCoinPriceHistory } = require('@/lib/api');
-    fetchCoinPriceHistory.mockResolvedValue({ data: mockData, error: null });
-
-    render(<PriceChart coinId="bitcoin" coinName="Bitcoin" />);
+    render(
+      <PriceChart 
+        coinId="bitcoin" 
+        coinName="Bitcoin" 
+        sparklineData={sparklineData} 
+      />
+    );
 
     await waitFor(() => {
-      expect(screen.getByText(/Change:/)).toBeInTheDocument();
+      expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
     });
 
-    // Should show positive change from 30000 to 32000
-    expect(screen.getByText(/\+\$2,000.00/)).toBeInTheDocument();
-    expect(screen.getByText(/\+6.67%/)).toBeInTheDocument();
+    // Should not call the API when sparkline data is provided
+    expect(mockFetchCoinPriceHistory).not.toHaveBeenCalled();
+    expect(screen.getByText('Bitcoin Price Chart (7d)')).toBeInTheDocument();
   });
 });

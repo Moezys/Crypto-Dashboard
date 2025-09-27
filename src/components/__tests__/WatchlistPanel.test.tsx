@@ -1,11 +1,14 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { jest } from '@jest/globals';
 import WatchlistPanel from '@/components/WatchlistPanel';
 
 // Mock the watchlist utilities
+const mockGetWatchlist = jest.fn();
+const mockRemoveFromWatchlist = jest.fn();
+
 jest.mock('@/lib/watchlist', () => ({
-  getWatchlist: jest.fn(),
-  removeFromWatchlist: jest.fn(),
+  getWatchlist: mockGetWatchlist,
+  removeFromWatchlist: mockRemoveFromWatchlist,
 }));
 
 // Mock Next.js components
@@ -46,11 +49,15 @@ describe('WatchlistPanel', () => {
   });
 
   it('renders empty state when watchlist is empty', async () => {
-    const { getWatchlist } = require('@/lib/watchlist');
-    getWatchlist.mockReturnValue([]);
+    mockGetWatchlist.mockReturnValue([]);
 
     render(<WatchlistPanel />);
 
+    // Wait for loading to complete
+    await waitFor(() => {
+      expect(screen.getByText('0 coins tracked')).toBeInTheDocument();
+    });
+    
     expect(screen.getByText('My Watchlist')).toBeInTheDocument();
     expect(screen.getByText('No coins in watchlist')).toBeInTheDocument();
     expect(screen.getByText('Add coins to your watchlist by clicking the star icon in the main table.')).toBeInTheDocument();
@@ -62,14 +69,17 @@ describe('WatchlistPanel', () => {
       { id: 'ethereum', symbol: 'eth', name: 'Ethereum' },
     ];
 
-    const { getWatchlist } = require('@/lib/watchlist');
-    getWatchlist.mockReturnValue(mockWatchlist);
+    mockGetWatchlist.mockReturnValue(mockWatchlist);
 
     render(<WatchlistPanel />);
 
+    // Wait for loading to complete
+    await waitFor(() => {
+      expect(screen.getByText('2 coins tracked')).toBeInTheDocument();
+    });
+    
     expect(screen.getByText('Bitcoin')).toBeInTheDocument();
     expect(screen.getByText('Ethereum')).toBeInTheDocument();
-    expect(screen.getByText('2 coins tracked')).toBeInTheDocument();
   });
 
   it('removes item from watchlist when remove button is clicked', async () => {
@@ -77,16 +87,20 @@ describe('WatchlistPanel', () => {
       { id: 'bitcoin', symbol: 'btc', name: 'Bitcoin' },
     ];
 
-    const { getWatchlist, removeFromWatchlist } = require('@/lib/watchlist');
-    getWatchlist.mockReturnValue(mockWatchlist);
-    removeFromWatchlist.mockReturnValue([]);
+    mockGetWatchlist.mockReturnValue(mockWatchlist);
+    mockRemoveFromWatchlist.mockReturnValue([]);
 
     render(<WatchlistPanel />);
 
+    // Wait for loading to complete and item to appear
+    await waitFor(() => {
+      expect(screen.getByText('Bitcoin')).toBeInTheDocument();
+    });
+    
     const removeButton = screen.getByLabelText('Remove Bitcoin from watchlist');
     fireEvent.click(removeButton);
 
-    expect(removeFromWatchlist).toHaveBeenCalledWith('bitcoin');
+    expect(mockRemoveFromWatchlist).toHaveBeenCalledWith('bitcoin');
   });
 
   it('clears all items when clear all button is clicked', async () => {
@@ -95,17 +109,21 @@ describe('WatchlistPanel', () => {
       { id: 'ethereum', symbol: 'eth', name: 'Ethereum' },
     ];
 
-    const { getWatchlist, removeFromWatchlist } = require('@/lib/watchlist');
-    getWatchlist.mockReturnValue(mockWatchlist);
-    removeFromWatchlist.mockReturnValue([]);
+    mockGetWatchlist.mockReturnValue(mockWatchlist);
+    mockRemoveFromWatchlist.mockReturnValue([]);
 
     render(<WatchlistPanel />);
 
+    // Wait for loading to complete and items to appear
+    await waitFor(() => {
+      expect(screen.getByText('2 coins tracked')).toBeInTheDocument();
+    });
+    
     const clearAllButton = screen.getByText('Clear all');
     fireEvent.click(clearAllButton);
 
-    expect(removeFromWatchlist).toHaveBeenCalledTimes(2);
-    expect(removeFromWatchlist).toHaveBeenCalledWith('bitcoin');
-    expect(removeFromWatchlist).toHaveBeenCalledWith('ethereum');
+    expect(mockRemoveFromWatchlist).toHaveBeenCalledTimes(2);
+    expect(mockRemoveFromWatchlist).toHaveBeenCalledWith('bitcoin');
+    expect(mockRemoveFromWatchlist).toHaveBeenCalledWith('ethereum');
   });
 });
